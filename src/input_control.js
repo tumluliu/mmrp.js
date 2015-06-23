@@ -98,29 +98,91 @@ module.exports = function (container, directions) {
             directions.setDestination(undefined);
         });
 
-    var profile = form.append('div')
+    var car_profile = form.append('div')
         .attr('class', 'mapbox-directions-profile');
 
-    var profiles = profile.selectAll('span')
+    car_profile.append('h3')
+        .attr('value', 'DRIVING')
+        .attr('style', 'margin: 5px 0px 0px 5px')
+        .text('DRIVING OPTIONS');
+
+    var car_profiles = car_profile.selectAll('span')
         .data([
-            ['mapbox.driving', 'driving', 'Driving'],
-            ['mapbox.walking', 'walking', 'Walking'],
-            ['mapbox.cycling', 'cycling', 'Cycling']])
+            ['mmrp.private_car', 'private_car', 'Private car available on departure'],
+            ['mmrp.car_parking', 'car_parking', 'Need parking for the car']])
         .enter()
         .append('span');
 
-    profiles.append('input')
-        .attr('type', 'radio')
+    car_profiles.append('input')
+        .attr('type', 'checkbox')
         .attr('name', 'profile')
         .attr('id', function (d) { return 'mapbox-directions-profile-' + d[1]; })
         .property('checked', function (d, i) { return i === 0; })
         .on('change', function (d) {
-            directions.setProfile(d[0]).query();
+            alert(d + ' is checked');
+            //directions.setProfile(d).query();
         });
 
-    profiles.append('label')
+    car_profiles.append('label')
         .attr('for', function (d) { return 'mapbox-directions-profile-' + d[1]; })
         .text(function (d) { return d[2]; });
+
+    car_profile.append('input')
+        .attr('type', 'checkbox')
+        .attr('name', 'driving-profile')
+        .attr('id', 'driving-distance-limit')
+        .on('change', function (d) {
+            alert('change distance limit');
+        });
+
+    car_profile.append('label')
+        .attr('for', 'driving-distance-limit')
+        .attr('style', 'width: 150px')
+        .text('Distance limit (km): ');
+
+    car_profile.append('input')
+        .attr('type', 'text')
+        .attr('id', 'mmrp-driving-distance-limit')
+        .attr('style', 'width: 60px;padding-left: 10px;background-color: white;border: 1px solid rgba(0,0,0,0.1);height: 30px;vertical-align: middle;');
+
+    var public_profile = form.append('div')
+        .attr('class', 'mapbox-directions-profile');
+
+    public_profile.append('h3')
+        .attr('value', 'PUBLIC TRANSIT')
+        .attr('style', 'margin: 5px 0px 0px 5px')
+        .text('PUBLIC TRANSIT PREFERENCES');
+
+    var public_profiles = public_profile.selectAll('span')
+        .data([
+            ['mmrp.suburban', 'suburban', 'Suburban'],
+            ['mmrp.underground', 'underground', 'Underground'],
+            ['mmrp.tram', 'tram', 'Tram']])
+        .enter()
+        .append('span');
+
+    public_profiles.append('input')
+        .attr('type', 'checkbox')
+        .attr('name', 'profile')
+        .attr('id', function (d) { return 'mapbox-directions-profile-' + d[1]; })
+        .property('checked', function (d, i) { return i === 0; })
+        .on('change', function (d) {
+            alert(d + ' is checked');
+            //directions.setProfile(d).query();
+        });
+
+    public_profiles.append('label')
+        .attr('for', function (d) { return 'mapbox-directions-profile-' + d[1]; })
+        .text(function (d) { return d[2]; });
+
+    public_profile.append('input')
+        .attr('type', 'button')
+        .attr('value', 'Find multimodal paths')
+        .attr('name', 'find paths')
+        .attr('id', 'find-mmpaths')
+        .on('click', function (d) {
+            alert('submit to find multimodal paths!');
+        })
 
     function format(waypoint) {
         if (!waypoint) {
