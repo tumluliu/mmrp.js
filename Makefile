@@ -1,6 +1,6 @@
 BROWSERIFY = node_modules/.bin/browserify
 
-all: dist/mapbox.directions.js
+all: dist/mmrp.js
 
 node_modules/.install: package.json
 	npm install && touch node_modules/.install
@@ -8,11 +8,11 @@ node_modules/.install: package.json
 dist:
 	mkdir -p dist
 
-dist/mapbox.directions.js: node_modules/.install dist $(shell $(BROWSERIFY) --list index.js)
+dist/mmrp.js: node_modules/.install dist $(shell $(BROWSERIFY) --list index.js)
 	npm run build
 
 clean:
-	rm -rf dist/mapbox.directions.js
+	rm -rf dist/mmrp.js
 
 D3_FILES = \
 	node_modules/d3/src/start.js \
