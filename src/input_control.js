@@ -15,6 +15,8 @@ module.exports = function (container, directions) {
     container = d3.select(L.DomUtil.get(container))
         .classed('mapbox-directions-inputs', true);
 
+    var publicTransitSelection = [];
+
     var form = container.append('form')
         .on('keypress', function () {
             if (d3.event.keyCode === 13) {
@@ -49,7 +51,7 @@ module.exports = function (container, directions) {
     var originInput = origin.append('input')
         .attr('type', 'text')
         .attr('required', 'required')
-        .attr('id', 'mapbox-directions-origin-input')
+        .attr('id', 'mmrp-origin-input')
         .attr('placeholder', 'Start')
         .on('input', function() {
             if (!origChange) origChange = true;
@@ -85,7 +87,7 @@ module.exports = function (container, directions) {
     var destinationInput = destination.append('input')
         .attr('type', 'text')
         .attr('required', 'required')
-        .attr('id', 'mapbox-directions-destination-input')
+        .attr('id', 'mmrp-destination-input')
         .attr('placeholder', 'End')
         .on('input', function() {
             if (!destChange) destChange = true;
@@ -99,6 +101,7 @@ module.exports = function (container, directions) {
         });
 
     var car_profile = form.append('div')
+        .attr('id', 'mmrp-car-profiles')
         .attr('class', 'mapbox-directions-profile');
 
     car_profile.append('h3')
@@ -106,33 +109,58 @@ module.exports = function (container, directions) {
         .attr('style', 'margin: 5px 0px 0px 5px')
         .text('DRIVING OPTIONS');
 
-    var car_profiles = car_profile.selectAll('span')
-        .data([
-            ['mmrp.private_car', 'private_car', 'Private car available on departure'],
-            ['mmrp.car_parking', 'car_parking', 'Need parking for the car']])
-        .enter()
-        .append('span');
-
-    car_profiles.append('input')
+    car_profile.append('input')
         .attr('type', 'checkbox')
         .attr('name', 'profile')
-        .attr('id', function (d) { return 'mapbox-directions-profile-' + d[1]; })
-        .property('checked', function (d, i) { return i === 0; })
+        .attr('id', 'mmrp-profile-private-car')
+        .property('checked', true)
         .on('change', function (d) {
-            alert(d + ' is checked');
-            //directions.setProfile(d).query();
+            if (this.checked) {
+                carParking.property('disabled', false);
+                carParking.property('checked', true);
+                isDrivingDistLimited.property('disabled', false);
+                isDrivingDistLimited.property('checked', true);
+                distanceLimit.property('disabled', false);
+            }
+            else {
+                carParking.property('disabled', true);
+                carParking.property('checked', false);
+                isDrivingDistLimited.property('disabled', true);
+                isDrivingDistLimited.property('checked', false);
+                distanceLimit.property('disabled', true);
+            }
+            directions.setProfile('has_private_car', this.checked);
         });
 
-    car_profiles.append('label')
-        .attr('for', function (d) { return 'mapbox-directions-profile-' + d[1]; })
-        .text(function (d) { return d[2]; });
+    car_profile.append('label')
+        .attr('for', 'mmrp-profile-private-car')
+        .text('Private car available on departure');
 
-    car_profile.append('input')
+    var carParking = car_profile.append('input')
+        .attr('type', 'checkbox')
+        .attr('name', 'profile')
+        .attr('id', 'mmrp-profile-car-parking')
+        .property('checked', true)
+        .property('disabled', false)
+        .on('change', function (d) {
+            directions.setProfile('need_parking', this.checked);
+        });
+
+    car_profile.append('label')
+        .attr('for', 'mmrp-profile-car-parking')
+        .text('Need parking for the car');
+
+    var isDrivingDistLimited = car_profile.append('input')
         .attr('type', 'checkbox')
         .attr('name', 'driving-profile')
         .attr('id', 'driving-distance-limit')
+        .property('checked', true)
         .on('change', function (d) {
-            alert('change distance limit');
+            if (this.checked) {
+                distanceLimit.property('disabled', false);
+            }
+            else
+                distanceLimit.property('disabled', true);
         });
 
     car_profile.append('label')
@@ -140,12 +168,16 @@ module.exports = function (container, directions) {
         .attr('style', 'width: 150px')
         .text('Distance limit (km): ');
 
-    car_profile.append('input')
-        .attr('type', 'text')
+    var distanceLimit = car_profile.append('input')
+        .attr('type', 'number')
+        .attr('min', '10')
+        .attr('max', '2617')
+        .property('value', '500')
         .attr('id', 'mmrp-driving-distance-limit')
-        .attr('style', 'width: 60px;padding-left: 10px;background-color: white;border: 1px solid rgba(0,0,0,0.1);height: 30px;vertical-align: middle;');
+        .attr('style', 'width: 80px;padding-left: 10px;padding-top: 2px;padding-bottom: 2px;background-color: white;border: 1px solid rgba(0,0,0,0.1);height: 30px;vertical-align: middle;');
 
     var public_profile = form.append('div')
+        .attr('id', 'mmrp-public-profiles')
         .attr('class', 'mapbox-directions-profile');
 
     public_profile.append('h3')
@@ -164,15 +196,21 @@ module.exports = function (container, directions) {
     public_profiles.append('input')
         .attr('type', 'checkbox')
         .attr('name', 'profile')
-        .attr('id', function (d) { return 'mapbox-directions-profile-' + d[1]; })
-        .property('checked', function (d, i) { return i === 0; })
+        .attr('id', function (d) { return 'mmrp-profile-' + d[1]; })
         .on('change', function (d) {
-            alert(d + ' is checked');
-            //directions.setProfile(d).query();
+            if (this.checked) {
+                publicTransitSelection.push(d[1]);
+            }
+            else {
+                var index = publicTransitSelection.indexOf(d[1]);
+                if (index > -1) {
+                    publicTransitSelection.splice(index, 1);
+                }
+            }
         });
 
     public_profiles.append('label')
-        .attr('for', function (d) { return 'mapbox-directions-profile-' + d[1]; })
+        .attr('for', function (d) { return 'mmrp-profile-' + d[1]; })
         .text(function (d) { return d[2]; });
 
     public_profile.append('input')
@@ -181,8 +219,13 @@ module.exports = function (container, directions) {
         .attr('name', 'find paths')
         .attr('id', 'find-mmpaths')
         .on('click', function (d) {
-            alert('submit to find multimodal paths!');
-        })
+            if (isDrivingDistLimited.property('checked') === true) {
+                directions.setProfile('driving_distance_limit', distanceLimit.property('value'));
+            }
+            directions.setProfile('available_public_modes', publicTransitSelection);
+            alert(JSON.stringify(directions.getProfile()));
+            directions.query();
+        });
 
     function format(waypoint) {
         if (!waypoint) {
