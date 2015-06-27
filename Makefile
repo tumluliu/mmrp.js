@@ -14,6 +14,9 @@ dist/mmrp.js: node_modules/.install dist $(shell $(BROWSERIFY) --list index.js)
 clean:
 	rm -rf dist/mmrp.js
 
+install:
+	make && cp dist/mmrp.js ../mmrp-web/js/ && cp dist/mmrp.css ../mmrp-web/css/
+
 D3_FILES = \
 	node_modules/d3/src/start.js \
 	node_modules/d3/src/selection/index.js \
