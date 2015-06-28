@@ -2,6 +2,7 @@
 
 var request = require('./request'),
     polyline = require('polyline'),
+    d3 = require('../lib/d3'),
     queue = require('queue-async');
 
 var Directions = L.Class.extend({
@@ -13,12 +14,39 @@ var Directions = L.Class.extend({
 
     statics: {
         URL_TEMPLATE: 'https://api.tiles.mapbox.com/v4/directions/{profile}/{waypoints}.json?instructions=html&geometry=polyline&access_token={token}',
+        MMRP_API_TEMPLATE: 'http://luliu.me/mmrp/api/v1',
         GEOCODER_TEMPLATE: 'https://api.tiles.mapbox.com/v4/geocode/mapbox.places/{query}.json?proximity={proximity}&access_token={token}'
     },
 
     initialize: function(options) {
         L.setOptions(this, options);
         this._waypoints = [];
+        this.profile = {
+            "available_public_modes": [],
+            "can_use_taxi":           false,
+            "has_bicycle":            false,
+            "has_motorcycle":         false,
+            "has_private_car":        true,
+            "need_parking":           true,
+            "objective":              "fastest",
+            "driving_distance_limit": 500,
+            "source": {
+                "type": "coordinate",
+                "value": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "srid": 4326
+                }
+            },
+            "target": {
+                "type": "coordinate",
+                "value": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "srid": 4326
+                }
+            }
+        };
     },
 
     getOrigin: function () {
@@ -39,6 +67,9 @@ var Directions = L.Class.extend({
             this._unload();
         }
 
+        this.profile.source.value.x = this.origin.geometry.coordinates[0];
+        this.profile.source.value.y = this.origin.geometry.coordinates[1];
+
         return this;
     },
 
@@ -52,16 +83,20 @@ var Directions = L.Class.extend({
             this._unload();
         }
 
+        this.profile.target.value.x = this.destination.geometry.coordinates[0];
+        this.profile.target.value.y = this.destination.geometry.coordinates[1];
+
         return this;
     },
 
     getProfile: function() {
-        return this.profile || this.options.profile || 'mapbox.driving';
+        //return this.profile || this.options.profile || 'mapbox.driving';
+        return this.profile;
     },
 
-    setProfile: function (profile) {
-        this.profile = profile;
-        this.fire('profile', {profile: profile});
+    setProfile: function (key, value) {
+        this.profile[key] = value;
+        //this.fire('profile', {profile: profile});
         return this;
     },
 
@@ -116,22 +151,7 @@ var Directions = L.Class.extend({
     },
 
     queryURL: function () {
-        var template = Directions.URL_TEMPLATE,
-            token = this.options.accessToken || L.mapbox.accessToken,
-            profile = this.getProfile(),
-            points = [this.origin].concat(this._waypoints).concat([this.destination]).map(function (point) {
-                return point.geometry.coordinates;
-            }).join(';');
-
-        if (L.mapbox.feedback) {
-            L.mapbox.feedback.record({directions: profile + ';' + points});
-        }
-
-        return L.Util.template(template, {
-            token: token,
-            profile: profile,
-            waypoints: points
-        });
+        return Directions.MMRP_API_TEMPLATE;
     },
 
     queryable: function () {
@@ -165,7 +185,10 @@ var Directions = L.Class.extend({
                 return this.fire('error', {error: err.message});
             }
 
-            this._query = request(this.queryURL(), L.bind(function (err, resp) {
+            var reqData = {"id": 1, "jsonrpc": "2.0", "method": "mmrp.findMultimodalPaths"};
+            reqData.params = [this.profile];
+
+            this._query = request(this.queryURL(), reqData, L.bind(function (err, resp) {
                 this._query = null;
 
                 if (err) {

@@ -1,9 +1,9 @@
 'use strict';
 
-var corslite = require('corslite');
+var d3post = require('./d3_post');
 
-module.exports = function(url, callback) {
-    return corslite(url, function (err, resp) {
+module.exports = function(url, reqData, callback) {
+    return d3post(url, reqData, function (err, resp) {
         if (err && err.type === 'abort') {
             return;
         }
@@ -15,9 +15,9 @@ module.exports = function(url, callback) {
         resp = resp || err;
 
         try {
-            resp = JSON.parse(resp.responseText);
+            resp = JSON.parse(resp.response);
         } catch (e) {
-            return callback(new Error(resp.responseText));
+            return callback(new Error(resp));
         }
 
         if (resp.error) {
