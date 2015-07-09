@@ -50,7 +50,7 @@
     font-size: 12px;
     width: 100%;
     border: 0;
-    background-color: transparent;
+    /*background-color: transparent;*/
     height: 40px;
     margin: 0;
     color: rgba(0,0,0,.5);
@@ -58,6 +58,7 @@
 }
 
 .mapbox-directions-inputs input:focus {
+    background-color: transparent;
     color: rgba(0,0,0,.75);
     outline:0;
     box-shadow: none;
@@ -118,10 +119,12 @@ input:not(:valid) + .mapbox-close-icon {
 }
 
 .mapbox-directions-profile input[type=radio] {
+    background-color: transparent;
     display: none;
 }
 
 .mapbox-directions-profile input[type=checkbox] {
+    background-color: transparent;
     cursor: pointer;
     vertical-align: middle;
     display: inline-block;
@@ -135,6 +138,7 @@ input:not(:valid) + .mapbox-close-icon {
 }
 
 .mapbox-directions-profile input[type=checkbox] + label {
+    background-color: transparent;
     vertical-align: middle;
     text-align: left;
     font-size: 14px;
@@ -143,16 +147,16 @@ input:not(:valid) + .mapbox-close-icon {
 }
 
 .mapbox-directions-profile input[type=button] {
-    background-color: #3887be;
+    width: 300px;
     text-align: center;
     color: #fff;
     display: inline-block;
-    margin: 0px;
-    padding: 10px;
+    margin-left: -2px;
+    padding: 0px;
     position: relative;
     border: none;
     cursor: pointer;
-    border-radius: 3px;
+    border-radius: 2px;
     white-space: nowrap;
     text-overflow: ellipsis;
     font-family: 'Open Sans Bold', sans-serif;
@@ -261,9 +265,9 @@ input:not(:valid) + .mapbox-close-icon {
 /* icons */
 
 .mapbox-directions-icon {
-    background-image: url('mapbox.directions.png');
-    -webkit-background-size: 280px 20px;
-    background-size: 280px 20px;
+    background-image: url('mmrp.png');
+    -webkit-background-size: 300px 20px;
+    background-size: 300px 20px;
     background-repeat: no-repeat;
     margin: 0;
     content: '';
@@ -280,20 +284,21 @@ input:not(:valid) + .mapbox-close-icon {
     margin: auto;
 }
 
-.mapbox-continue-icon         { background-position: 0 0; }
-.mapbox-sharp-right-icon      { background-position: -20px 0; }
-.mapbox-turn-right-icon       { background-position: -40px 0; }
-.mapbox-bear-right-icon       { background-position: -60px 0; }
-.mapbox-u-turn-icon           { background-position: -80px 0; }
-.mapbox-sharp-left-icon       { background-position: -100px 0; }
-.mapbox-turn-left-icon        { background-position: -120px 0; }
-.mapbox-bear-left-icon        { background-position: -140px 0; }
-.mapbox-depart-icon           { background-position: -160px 0; }
-.mapbox-enter-roundabout-icon { background-position: -180px 0; }
-.mapbox-arrive-icon           { background-position: -200px 0; }
-.mapbox-close-icon            { background-position: -220px 0; }
-.mapbox-reverse-icon          { background-position: -240px 0; }
-.mapbox-error-icon            { background-position: -260px 0; }
+.mapbox-continue-icon          { background-position: 0 0; }
+.mapbox-continue-icon          { background-position: -20px 0; }
+.mmrp-underground_station-icon { background-position: -40px 0; }
+.mmrp-suburban_station-icon    { background-position: -60px 0; }
+.mmrp-tram_station-icon        { background-position: -80px 0; }
+.mmrp-bus_station-icon         { background-position: -100px 0; }
+.mmrp-car_parking-icon         { background-position: -120px 0; }
+.mmrp-park_and_ride-icon       { background-position: -140px 0; }
+.mapbox-bear-left-icon         { background-position: -160px 0; }
+.mapbox-depart-icon            { background-position: -180px 0; }
+.mapbox-enter-roundabout-icon  { background-position: -200px 0; }
+.mapbox-arrive-icon            { background-position: -220px 0; }
+.mapbox-close-icon             { background-position: -240px 0; }
+.mapbox-reverse-icon           { background-position: -260px 0; }
+.mapbox-error-icon             { background-position: -280px 0; }
 
 .mapbox-marker-drag-icon {
     display: block;
@@ -307,8 +312,8 @@ input:not(:valid) + .mapbox-close-icon {
 }
 /* leaflet overrides */
 
-path.leaflet-clickable {
-    stroke: #3BB2D0;
-    stroke-width: 4px;
-    stroke-opacity:.75;
-}
+/*path.leaflet-clickable {*/
+    /*stroke: #3BB2D0;*/
+    /*stroke-width: 4px;*/
+    /*stroke-opacity:.75;*/
+/*}*/
