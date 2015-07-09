@@ -9,11 +9,10 @@ var Directions = L.Class.extend({
     includes: [L.Mixin.Events],
 
     options: {
-        units: 'imperial'
+        units: 'metric'
     },
 
     statics: {
-        URL_TEMPLATE: 'https://api.tiles.mapbox.com/v4/directions/{profile}/{waypoints}.json?instructions=html&geometry=polyline&access_token={token}',
         MMRP_API_TEMPLATE: 'http://luliu.me/mmrp/api/v1',
         GEOCODER_TEMPLATE: 'https://api.tiles.mapbox.com/v4/geocode/mapbox.places/{query}.json?proximity={proximity}&access_token={token}'
     },
@@ -22,7 +21,7 @@ var Directions = L.Class.extend({
         L.setOptions(this, options);
         this._waypoints = [];
         this.profile = {
-            "available_public_modes": [],
+            "available_public_modes": ['underground'],
             "can_use_taxi":           false,
             "has_bicycle":            false,
             "has_motorcycle":         false,
@@ -67,8 +66,10 @@ var Directions = L.Class.extend({
             this._unload();
         }
 
-        this.profile.source.value.x = this.origin.geometry.coordinates[0];
-        this.profile.source.value.y = this.origin.geometry.coordinates[1];
+        if (origin) {
+            this.profile.source.value.x = this.origin.geometry.coordinates[0];
+            this.profile.source.value.y = this.origin.geometry.coordinates[1];
+        }
 
         return this;
     },
@@ -83,8 +84,10 @@ var Directions = L.Class.extend({
             this._unload();
         }
 
-        this.profile.target.value.x = this.destination.geometry.coordinates[0];
-        this.profile.target.value.y = this.destination.geometry.coordinates[1];
+        if (destination) {
+            this.profile.target.value.x = this.destination.geometry.coordinates[0];
+            this.profile.target.value.y = this.destination.geometry.coordinates[1];
+        }
 
         return this;
     },
@@ -196,11 +199,29 @@ var Directions = L.Class.extend({
                 }
 
                 this.directions = resp;
+                this.directions.waypoints = [];
+                this.directions.origin = resp.source;
+                this.directions.destination = resp.target;
                 this.directions.routes.forEach(function (route) {
-                    route.geometry = {
-                        type: "LineString",
-                        coordinates: polyline.decode(route.geometry, 6).map(function (c) { return c.reverse(); })
-                    };
+                    route.geometry = route.geojson;
+                    route.duration = route.duration * 60;
+                    route.steps = [];
+                    var i = 0;
+                    for (i = 0; i < route.geojson.features.length; i++) { 
+                        var stepInfo = route.geojson.features[i];
+                        if (stepInfo.properties.type === 'path') {
+                            route.steps.push({
+                                properties: route.geojson.features[i].properties,
+                                loc: route.geojson.features[i].geometry.coordinates[0]
+                            });
+                        }
+                        else if (stepInfo.properties.type === 'switch_point') {
+                            route.steps.push({
+                                properties: route.geojson.features[i].properties,
+                                loc: route.geojson.features[i].geometry.coordinates
+                            });
+                        }
+                    }
                 });
 
                 if (!this.origin.properties.name) {

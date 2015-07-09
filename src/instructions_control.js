@@ -32,17 +32,45 @@ module.exports = function (container, directions) {
 
         steps.append('span')
             .attr('class', function (step) {
-                return 'mapbox-directions-icon mapbox-' + step.maneuver.type.replace(/\s+/g, '-').toLowerCase() + '-icon';
+                if (step.properties.type === 'path') {
+                    return 'mapbox-directions-icon mapbox-continue-icon';
+                }
+                else if (step.properties.type === 'switch_point') {
+                    return 'mapbox-directions-icon mmrp-' + step.properties.switch_type.toLowerCase() + '-icon';
+                }
             });
 
         steps.append('div')
             .attr('class', 'mapbox-directions-step-maneuver')
-            .html(function (step) { return step.maneuver.instruction; });
+            .html(function (step) { 
+                if (step.properties.type === 'path') { 
+                    switch (step.properties.mode) {
+                        case 'private_car':
+                            return 'Driving'; 
+                            break;
+                        case 'foot':
+                            return 'Walking';
+                            break;
+                        case 'bicycle':
+                            return 'Cycling';
+                            break;
+                        default:
+                            return step.properties.title;
+                            break;
+                    }
+                }
+                else if (step.properties.type === 'switch_point') { 
+                    if (step.properties.switch_type === 'underground_station') {
+                        return step.properties.title + ': Platform ' + step.properties.platform;
+                    }
+                    return step.properties.title; 
+                } 
+            });
 
         steps.append('div')
             .attr('class', 'mapbox-directions-step-distance')
             .text(function (step) {
-                return step.distance ? format[directions.options.units](step.distance) : '';
+                return step.properties.distance ? format[directions.options.units](step.properties.distance) : '';
             });
 
         steps.on('mouseover', function (step) {
@@ -54,7 +82,7 @@ module.exports = function (container, directions) {
         });
 
         steps.on('click', function (step) {
-            map.panTo(L.GeoJSON.coordsToLatLng(step.maneuver.location.coordinates));
+            map.panTo(L.GeoJSON.coordsToLatLng(step.loc));
         });
     });
 

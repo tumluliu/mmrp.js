@@ -49,8 +49,22 @@ var Layer = L.LayerGroup.extend({
             .on('drag', this._drag, this)
             .on('dragend', this._dragEnd, this);
 
-        this.routeLayer = L.geoJson();
-        this.routeHighlightLayer = L.geoJson();
+
+        var fakeGeoJSON = {'type': 'FeatureCollection', 'features': []};
+        //this.routeLayer = L.geoJson(null, { 
+            ////style: function (feature) {
+                ////return feature.properties;
+            ////},
+            ////style: L.mapbox.simplestyle.style, 
+            //onEachFeature: function (feature, layer) {
+                //layer.bindPopup(feature.properties.title);
+            //}});
+        //this.routeHighlightLayer = L.geoJson(null, {
+            //style: function (feature) {
+                //return feature.properties;
+            //}});
+        this.routeLayer = L.mapbox.featureLayer();
+        this.routeHighlightLayer = L.mapbox.featureLayer();
 
         this.waypointMarkers = [];
     },
@@ -98,9 +112,9 @@ var Layer = L.LayerGroup.extend({
             this._directions.setDestination(e.latlng);
         }
 
-        if (this._directions.queryable()) {
-            this._directions.query();
-        }
+        //if (this._directions.queryable()) {
+            //this._directions.query();
+        //}
     },
 
     _mousemove: function(e) {
@@ -235,7 +249,7 @@ var Layer = L.LayerGroup.extend({
     _selectRoute: function(e) {
         this.routeLayer
             .clearLayers()
-            .addData(e.route.geometry);
+            .setGeoJSON(e.route.geometry);
         this.addLayer(this.routeLayer);
     },
 
@@ -243,7 +257,7 @@ var Layer = L.LayerGroup.extend({
         if (e.route) {
             this.routeHighlightLayer
                 .clearLayers()
-                .addData(e.route.geometry);
+                .setGeoJSON(e.route.geometry);
             this.addLayer(this.routeHighlightLayer);
         } else {
             this.removeLayer(this.routeHighlightLayer);
@@ -252,7 +266,7 @@ var Layer = L.LayerGroup.extend({
 
     _highlightStep: function(e) {
         if (e.step) {
-            this.stepMarker.setLatLng(L.GeoJSON.coordsToLatLng(e.step.maneuver.location.coordinates));
+            this.stepMarker.setLatLng(L.GeoJSON.coordsToLatLng(e.step.loc));
             this.addLayer(this.stepMarker);
         } else {
             this.removeLayer(this.stepMarker);

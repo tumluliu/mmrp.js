@@ -15,7 +15,7 @@ module.exports = function (container, directions) {
     container = d3.select(L.DomUtil.get(container))
         .classed('mapbox-directions-inputs', true);
 
-    var publicTransitSelection = [];
+    var publicTransitSelection = ['underground'];
 
     var form = container.append('form')
         .on('keypress', function () {
@@ -197,6 +197,7 @@ module.exports = function (container, directions) {
         .attr('type', 'checkbox')
         .attr('name', 'profile')
         .attr('id', function (d) { return 'mmrp-profile-' + d[1]; })
+        .property('checked', function (d, i) { return i === 1; } )
         .on('change', function (d) {
             if (this.checked) {
                 publicTransitSelection.push(d[1]);
@@ -218,12 +219,12 @@ module.exports = function (container, directions) {
         .attr('value', 'Find multimodal paths')
         .attr('name', 'find paths')
         .attr('id', 'find-mmpaths')
+        .attr('class', 'button')
         .on('click', function (d) {
             if (isDrivingDistLimited.property('checked') === true) {
                 directions.setProfile('driving_distance_limit', distanceLimit.property('value'));
             }
             directions.setProfile('available_public_modes', publicTransitSelection);
-            alert(JSON.stringify(directions.getProfile()));
             directions.query();
         });
 

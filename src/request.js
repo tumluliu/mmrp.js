@@ -15,7 +15,7 @@ module.exports = function(url, reqData, callback) {
         resp = resp || err;
 
         try {
-            resp = JSON.parse(resp.response).result;
+            resp = JSON.parse(resp.response);
         } catch (e) {
             return callback(new Error(resp));
         }
@@ -24,6 +24,6 @@ module.exports = function(url, reqData, callback) {
             return callback(new Error(resp.error));
         }
 
-        return callback(null, resp);
+        return callback(null, resp.result);
     });
 };
