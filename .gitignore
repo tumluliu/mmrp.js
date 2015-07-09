@@ -4,3 +4,4 @@
 *.un~
 node_modules/
 .ropeproject/
+dist/mapbox.directions.css
