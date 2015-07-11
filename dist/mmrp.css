@@ -147,6 +147,7 @@ input:not(:valid) + .mapbox-close-icon {
 }
 
 .mapbox-directions-profile input[type=button] {
+    background-color:#3887be;
     width: 300px;
     text-align: center;
     color: #fff;
@@ -164,6 +165,32 @@ input:not(:valid) + .mapbox-close-icon {
     font-size: 12px;
     -webkit-appearance: none;
     -webkit-font-smoothing: antialiased;
+}
+
+.mapbox-directions-profile input[type=button]:hover,
+.mapbox-directions-profile input[type=button].active {
+    background-color:#3bb2d0;
+}
+
+.mapbox-directions-profile input[type=button]:focus {
+    box-shadow: inset 0 0 0 3px rgba(0,0,0,0.1);
+}
+
+.mapbox-directions-profile input[type=button].disabled,
+.mapbox-directions-profile input[type=button]:disabled {
+    background:rgba(229,229,229,.9);
+    color:rgba(0,0,0,0.25);
+    cursor: default;
+}
+
+.mapbox-directions-profile input[type=button].disabled:hover,
+.mapbox-directions-profile input[type=button]:disabled:hover {
+    background:rgba(229,229,229,.9);
+}
+
+.mapbox-directions-profile input[type=button].disabled:focus,
+.mapbox-directions-profile input[type=button]:disabled:focus {
+    box-shadow:none;
 }
 
 /* Errors */
