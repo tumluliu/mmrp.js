@@ -265,7 +265,7 @@ var Layer = L.LayerGroup.extend({
     },
 
     _highlightStep: function(e) {
-        if (e.step) {
+        if (e.step && e.step.loc) {
             this.stepMarker.setLatLng(L.GeoJSON.coordsToLatLng(e.step.loc));
             this.addLayer(this.stepMarker);
         } else {
