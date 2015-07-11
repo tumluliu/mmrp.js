@@ -49,20 +49,6 @@ var Layer = L.LayerGroup.extend({
             .on('drag', this._drag, this)
             .on('dragend', this._dragEnd, this);
 
-
-        var fakeGeoJSON = {'type': 'FeatureCollection', 'features': []};
-        //this.routeLayer = L.geoJson(null, { 
-            ////style: function (feature) {
-                ////return feature.properties;
-            ////},
-            ////style: L.mapbox.simplestyle.style, 
-            //onEachFeature: function (feature, layer) {
-                //layer.bindPopup(feature.properties.title);
-            //}});
-        //this.routeHighlightLayer = L.geoJson(null, {
-            //style: function (feature) {
-                //return feature.properties;
-            //}});
         this.routeLayer = L.mapbox.featureLayer();
         this.routeHighlightLayer = L.mapbox.featureLayer();
 
