@@ -82,7 +82,9 @@ module.exports = function (container, directions) {
         });
 
         steps.on('click', function (step) {
-            map.panTo(L.GeoJSON.coordsToLatLng(step.loc));
+            if (step.loc) {
+                map.panTo(L.GeoJSON.coordsToLatLng(step.loc));
+            }
         });
     });
 
