@@ -51,6 +51,7 @@ var Layer = L.LayerGroup.extend({
 
         this.routeLayer = L.mapbox.featureLayer();
         this.routeHighlightLayer = L.mapbox.featureLayer();
+        this.trackLayer = L.mapbox.featureLayer();
 
         this.waypointMarkers = [];
     },
@@ -70,6 +71,7 @@ var Layer = L.LayerGroup.extend({
             .on('load', this._load, this)
             .on('unload', this._unload, this)
             .on('selectRoute', this._selectRoute, this)
+            .on('selectTrack', this._selectTrack, this)
             .on('highlightRoute', this._highlightRoute, this)
             .on('highlightStep', this._highlightStep, this);
     },
@@ -81,6 +83,7 @@ var Layer = L.LayerGroup.extend({
             .off('load', this._load, this)
             .off('unload', this._unload, this)
             .off('selectRoute', this._selectRoute, this)
+            .off('selectTrack', this._selectTrack, this)
             .off('highlightRoute', this._highlightRoute, this)
             .off('highlightStep', this._highlightStep, this);
 
@@ -227,6 +230,7 @@ var Layer = L.LayerGroup.extend({
 
     _unload: function() {
         this.removeLayer(this.routeLayer);
+        this.removeLayer(this.trackLayer);
         for (var i = 0; i < this.waypointMarkers.length; i++) {
             this.removeLayer(this.waypointMarkers[i]);
         }
@@ -237,6 +241,14 @@ var Layer = L.LayerGroup.extend({
             .clearLayers()
             .setGeoJSON(e.route.geometry);
         this.addLayer(this.routeLayer);
+    },
+
+    _selectTrack: function(e) {
+        this.trackLayer
+            .clearLayers()
+            .setGeoJSON(e.track);
+        this.addLayer(this.trackLayer);
+        this.removeLayer(this.routeLayer);
     },
 
     _highlightRoute: function(e) {

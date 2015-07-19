@@ -145,6 +145,10 @@ var Directions = L.Class.extend({
         this.fire('selectRoute', {route: route});
     },
 
+    selectTrack: function (track) {
+        this.fire('selectTrack', {track: track.GeoJSON});
+    },
+
     highlightRoute: function (route) {
         this.fire('highlightRoute', {route: route});
     },
