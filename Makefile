@@ -15,7 +15,7 @@ clean:
 	rm -rf dist/mmrp.js
 
 install:
-	make && cp dist/mmrp.js ../mmrp-web/js/ && cp dist/mmrp.css ../mmrp-web/css/ && cp dist/*.png ../mmrp-web/css/
+	make && cp dist/mmrp.js ../mmrp-web/scripts/ && cp dist/mmrp.css ../mmrp-web/styles/ && cp dist/*.png ../mmrp-web/styles/
 
 D3_FILES = \
 	node_modules/d3/src/start.js \
