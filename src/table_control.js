@@ -9,13 +9,22 @@ var renderRow = function(container, data) {
     return row;
 };
 
+var renderHeader = function(container, data) {
+    var row = container.insertRow();
+    data.forEach(function(str) {
+        var th = document.createElement('th');
+        th.innerHTML = str;
+        row.appendChild(th);
+    });
+    return row;
+};
 
 var TableControl = function(
     element /*: Object */, /* TableElement */
     headers /*: [string] */,
     model /*: ?[[string]] */
 ) {
-    renderRow(element.createTHead(), headers);
+    renderHeader(element.createTHead(), headers);
     this.tbody = element.createTBody();
     this.bind(model || []);
 };
