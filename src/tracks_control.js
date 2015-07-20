@@ -61,7 +61,14 @@ module.exports = function(container, directions) {
         var endPos = L.GeoJSON.coordsToLatLng([data[14], data[15]]);
         directions.setOrigin(startPos);
         directions.setDestination(endPos);
-        map.panTo(startPos);
+        var southWest = L.latLng(
+                Math.min(startPos.lat, endPos.lat), 
+                Math.min(startPos.lng, endPos.lng)),
+            northEast = L.latLng(
+                Math.max(startPos.lat, endPos.lat),
+                Math.max(startPos.lng, endPos.lng)),
+            bounds = L.latLngBounds(southWest, northEast);
+        map.fitBounds(bounds);
         // Web browser compatibility: 
         // IE7+, Firefox, Chrome, Opera, Safari
         var trackXhr = new XMLHttpRequest();
