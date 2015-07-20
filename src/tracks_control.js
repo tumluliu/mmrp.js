@@ -20,23 +20,27 @@ module.exports = function(container, directions) {
     container.insertAdjacentHTML('afterbegin', '<table id="table" class="prose"></table>');
 
     var trackinfoXhr = new XMLHttpRequest();
-    var keys = [], values = [];
+    var trackinfoKeys = [
+        'ID', 'Segments', '2D length', '3D length', 'Moving time', 'Stopped time', 
+        'Max speed', 'Uphill', 'Downhill', 'Started at', 'Ended at', 'Points', 
+        'Start lon', 'Start lat', 'End lon', 'End lat'
+    ],
+        values = [];
     trackinfoXhr.onreadystatechange = function() {
         if (trackinfoXhr.readyState === 4 && trackinfoXhr.status === 200) {
             var trackinfoData = JSON.parse(trackinfoXhr.responseText);
-            keys = Object.keys(trackinfoData.objects[0]);
-            values = [];
             trackinfoData.objects.forEach(function(data) {
-                var row = Object.keys(data).map(function(key){
+                var row = trackinfoKeys.map(function(key) {
                     return data[key];
                 });
                 values.push(row);
             });
 
-            var tc = new tableControl(document.getElementById('table'), keys, values);
+            var tc = new tableControl(document.getElementById('table'), 
+                    trackinfoKeys, values);
             tc.onSelected(function(data) {
-                var startPos = L.GeoJSON.coordsToLatLng([data[12], data[11]]);
-                var endPos = L.GeoJSON.coordsToLatLng([data[4], data[3]]);
+                var startPos = L.GeoJSON.coordsToLatLng([data[12], data[13]]);
+                var endPos = L.GeoJSON.coordsToLatLng([data[14], data[15]]);
                 directions.setOrigin(startPos);
                 directions.setDestination(endPos);
                 map.panTo(startPos);
@@ -49,7 +53,7 @@ module.exports = function(container, directions) {
                         directions.selectTrack(trackData);
                     }
                 }
-                trackXhr.open("GET", TRACK_API_URL + "/" + data[6], true);
+                trackXhr.open("GET", TRACK_API_URL + "/" + data[0], true);
                 trackXhr.send();
             });
         }
