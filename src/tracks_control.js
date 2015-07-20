@@ -1,6 +1,7 @@
 'use strict';
 
-var tableControl = require('./table_control.js');
+var tableControl = require('./table_control.js'), 
+    pagingControl = require('./paging_control.js');
 
 module.exports = function(container, directions) {
     var control = {}, map;
@@ -18,48 +19,85 @@ module.exports = function(container, directions) {
     // for IE7+, Firefox, Chrome, Opera, Safari
     container = document.getElementById(container);
     container.insertAdjacentHTML('afterbegin', '<table id="table" class="prose"></table>');
+    container.insertAdjacentHTML('beforeend', '<div id="paging" data-control="paging"></div>');
 
-    var trackinfoXhr = new XMLHttpRequest();
     var trackinfoKeys = [
         'ID', 'Segments', '2D length', '3D length', 'Moving time', 'Stopped time', 
         'Max speed', 'Uphill', 'Downhill', 'Started at', 'Ended at', 'Points', 
         'Start lon', 'Start lat', 'End lon', 'End lat'
     ],
-        values = [];
+    values = [];
+    var page = 1, totalPages = 1, numResults = 1;
+    var tc = new tableControl(document.getElementById('table'), 
+            trackinfoKeys, values);
+    var pg = new pagingControl(document.getElementById('paging'), 
+            {displayed: 0, total: 0});
+
+    var trackinfoXhr = new XMLHttpRequest();
     trackinfoXhr.onreadystatechange = function() {
         if (trackinfoXhr.readyState === 4 && trackinfoXhr.status === 200) {
             var trackinfoData = JSON.parse(trackinfoXhr.responseText);
+            totalPages = trackinfoData.total_pages;
+            page = trackinfoData.page;
+            numResults = trackinfoData.num_results;
+            values = [];
             trackinfoData.objects.forEach(function(data) {
                 var row = trackinfoKeys.map(function(key) {
                     return data[key];
                 });
                 values.push(row);
             });
-
-            var tc = new tableControl(document.getElementById('table'), 
-                    trackinfoKeys, values);
-            tc.onSelected(function(data) {
-                var startPos = L.GeoJSON.coordsToLatLng([data[12], data[13]]);
-                var endPos = L.GeoJSON.coordsToLatLng([data[14], data[15]]);
-                directions.setOrigin(startPos);
-                directions.setDestination(endPos);
-                map.panTo(startPos);
-                // Web browser compatibility: 
-                // IE7+, Firefox, Chrome, Opera, Safari
-                var trackXhr = new XMLHttpRequest();
-                trackXhr.onreadystatechange = function() {
-                    if (trackXhr.readyState === 4 && trackXhr.status === 200) {
-                        var trackData = JSON.parse(trackXhr.responseText);
-                        directions.selectTrack(trackData);
-                    }
-                }
-                trackXhr.open("GET", TRACK_API_URL + "/" + data[0], true);
-                trackXhr.send();
-            });
+            tc.bind(values);
+            pg.update({ displayed: 10, total: totalPages });
         }
+
+
     }
     trackinfoXhr.open("GET", TRACKINFO_API_URL, true);
     trackinfoXhr.send();
+
+    tc.onSelected(function(data) {
+        var startPos = L.GeoJSON.coordsToLatLng([data[12], data[13]]);
+        var endPos = L.GeoJSON.coordsToLatLng([data[14], data[15]]);
+        directions.setOrigin(startPos);
+        directions.setDestination(endPos);
+        map.panTo(startPos);
+        // Web browser compatibility: 
+        // IE7+, Firefox, Chrome, Opera, Safari
+        var trackXhr = new XMLHttpRequest();
+        trackXhr.onreadystatechange = function() {
+            if (trackXhr.readyState === 4 && trackXhr.status === 200) {
+                var trackData = JSON.parse(trackXhr.responseText);
+                directions.selectTrack(trackData);
+            }
+        }
+        trackXhr.open("GET", TRACK_API_URL + "/" + data[0], true);
+        trackXhr.send();
+    });
+
+    pg.onSelected(function(pageNo) {
+        var pagedTrackinfoXhr = new XMLHttpRequest();
+        pagedTrackinfoXhr.onreadystatechange = function() {
+            if (pagedTrackinfoXhr.readyState === 4 && pagedTrackinfoXhr.status === 200) {
+                var trackinfoData = JSON.parse(pagedTrackinfoXhr.responseText);
+                // The following 3 variables can be aquired from the response,
+                // but useless for the moment
+                //totalPages = trackinfoData.total_pages;
+                //page = trackinfoData.page;
+                //numResults = trackinfoData.num_results;
+                values = [];
+                trackinfoData.objects.forEach(function(data) {
+                    var row = trackinfoKeys.map(function(key) {
+                        return data[key];
+                    });
+                    values.push(row);
+                });
+                tc.bind(values);
+            }
+        }
+        pagedTrackinfoXhr.open("GET", TRACKINFO_API_URL + "?page=" + pageNo, true);
+        pagedTrackinfoXhr.send();
+    });
 
     return control;
 };
